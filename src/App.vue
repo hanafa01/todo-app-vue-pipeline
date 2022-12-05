@@ -1,115 +1,14 @@
 <template>
-  <base-dialog :open="showConfirmDelete" @close="showConfirmDelete = false">
-    <p>Are you sure you want to delete it ?</p>
-    <div class="confirm-delete-actions">
-      <button class="close" @click="showConfirmDelete = false">No</button>
-      <button class="confirm" @click="removeTodo()">Yes</button>
-    </div>
-  </base-dialog>
-
-  <h1 class="app-title">Todo App</h1>
-  <div class="todo-info">
-    <span class="total">Total: {{ nb_total }}</span>
-    <span class="completed">Completed: {{ nb_completed }}</span>
-    <span class="pending">Pending: {{ nb_pending }}</span>
-  </div>
-
-  <base-card>
-    <TodoAdd />
-  </base-card>
-
-  <base-card>
-    <div class="todo-actions">
-      <TodoFilter />
-      <transition name="fade-button">
-        <button
-          v-if="checkTodosExists && nb_completed > 0"
-          @click="clearCompletedTodo()"
-          class="todo-clearcompleted"
-        >
-          Clear Completed
-        </button>
-      </transition>
-    </div>
-    <transition-group name="fade-button">
-      <transition-group tag="ul" name="fade-button" v-if="checkTodosExists">
-        <TodoItem
-          v-for="todo in todos"
-          :key="todo.id"
-          :todo="todo"
-          :checkAll="checkIfAllCompleted"
-          @showConfirmDeleteDialog="confirmDeleteTodo"
-        />
-      </transition-group>
-      <div v-else class="no-todo">No Todo Available.</div>
-    </transition-group>
-  </base-card>
-  <transition name="fade-button">
-    <div v-if="checkTodosExists">
-      <input
-        type="checkbox"
-        :checked="checkIfAllCompleted"
-        @click="checkAll()"
-      />
-      Check All
-    </div>
-  </transition>
+  <TheHeader />
+  <router-view></router-view>
 </template>
 
 <script>
-import TodoAdd from "./components/TodoAdd.vue";
-import TodoItem from "./components/TodoItem.vue";
-import TodoFilter from "./components/TodoFilter.vue";
+import TheHeader from "./components/layouts/TheHeader.vue";
 
 export default {
   components: {
-    TodoAdd,
-    TodoItem,
-    TodoFilter,
-  },
-  data() {
-    return {
-      showConfirmDelete: false,
-      deleteid: null,
-    };
-  },
-  computed: {
-    todos() {
-      return this.$store.getters.todosFiltered;
-    },
-    checkTodosExists() {
-      return this.todos && this.todos.length > 0;
-    },
-    nb_total() {
-      return this.$store.getters.nb_total;
-    },
-    nb_pending() {
-      return this.$store.getters.nb_pending;
-    },
-    nb_completed() {
-      return this.$store.getters.nb_completed;
-    },
-    checkIfAllCompleted() {
-      return this.nb_pending === 0;
-    },
-  },
-  methods: {
-    clearCompletedTodo() {
-      this.$store.dispatch("clearCompletedTodo");
-    },
-    checkAll() {
-      this.$store.dispatch("checkAll", event.target.checked);
-    },
-    confirmDeleteTodo(id) {
-      this.deleteid = id;
-      this.showConfirmDelete = true;
-    },
-    removeTodo() {
-      if (this.deleteid != null) {
-        this.$store.dispatch("removeTodo", this.deleteid);
-      }
-      this.showConfirmDelete = false;
-    },
+    TheHeader,
   },
 };
 </script>
@@ -122,7 +21,7 @@ export default {
   -moz-box-sizing: border-box;
   box-sizing: border-box;
   font-family: "Nobile", sans-serif;
-  cursor: default;
+  /* cursor: default; */
 }
 
 body {
@@ -153,89 +52,50 @@ button {
   cursor: pointer;
   font: inherit;
   outline: none;
+  padding: 10px;
   background-color: transparent;
   border: none;
+}
+
+.app-welcome {
+  text-align: center;
+  border-bottom: 1px solid lightgrey;
+  padding: 10px 0 25px 0;
 }
 
 .app-title {
   text-align: center;
 }
 
-.todo-info,
-.todo-actions {
-  display: flex;
-  justify-content: space-between;
+.form-error {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 16px;
+  color: #a94442;
 }
 
-.todo-actions {
-  margin-bottom: 10px;
+.input-error {
+  border: 1px solid red;
 }
 
-.todo-info span {
-  cursor: not-allowed;
-  border-radius: 20px;
-  padding: 10px;
+.success-message {
+  background-color: #dff0d8;
+  color: #3c763d;
+  margin-bottom: 12px;
+  padding: 10px 14px;
+  border-radius: 4px;
 }
 
-.todo-info .total {
-  background-color: blue;
-}
-
-.todo-info .completed {
-  background-color: green;
-}
-
-.todo-info .pending {
-  background-color: red;
-}
-
-.todo-clearcompleted {
-  border-radius: 6px;
-  width: 160px;
-  background-color: red;
-  border: 2px solid red;
-  color: #fff;
-  padding: 10px;
-  transition: all 0.3s ease-in-out;
-}
-
-.todo-clearcompleted:hover {
-  border: 2px solid red;
-  color: red;
-  background-color: #fff;
+.server-error {
+  margin-bottom: 12px;
+  padding: 10px 14px;
+  color: #a94442;
+  background: #f3dede;
+  border-radius: 4px;
 }
 
 svg {
   color: #fff;
-}
-
-.no-todo {
-  text-align: center;
-  margin-top: 15px;
-}
-
-.confirm-delete-actions {
-  display: flex;
-  justify-content: right;
-  margin: 10px 0;
-}
-
-.confirm-delete-actions button {
-  border-radius: 6px;
-  padding: 10px;
-}
-
-.confirm-delete-actions .close {
-  background-color: black;
-  border: 2px solid black;
-  color: #fff;
-}
-
-.confirm-delete-actions .confirm {
-  background-color: green;
-  border: 2px solid green;
-  color: #fff;
-  margin-left: 10px;
 }
 
 input[type="checkbox"] {
@@ -267,6 +127,49 @@ input[type="checkbox"]::before {
 
 input[type="checkbox"]:checked {
   background-color: white;
+}
+
+.auth-form .input-label {
+  margin-bottom: 1rem;
+}
+
+.auth-form label {
+  display: inline-block;
+  margin-bottom: 0.5rem;
+}
+
+.auth-form input {
+  display: block;
+  background-color: transparent;
+  border: 2px solid hsla(0, 0%, 100%, 0.35);
+  font: inherit;
+  border-radius: 6px;
+  padding: 10px;
+  outline: none;
+  color: inherit;
+  width: 100%;
+}
+
+.auth-form button {
+  border-radius: 6px;
+  padding: 10px;
+  background-color: #fff;
+  border: 2px solid hsla(0, 0%, 100%, 0.35);
+  color: #000;
+  transition: all 0.3s ease-in-out;
+}
+
+.auth-form button:hover {
+  background-color: #000;
+  border: 2px solid #fff;
+  color: white;
+}
+
+.auth-form button:disabled {
+  background-color: rgba(255, 255, 255, 0.75);
+  border: 2px solid rgba(255, 255, 255, 0.75);
+  color: black;
+  cursor: not-allowed;
 }
 
 /* animations */

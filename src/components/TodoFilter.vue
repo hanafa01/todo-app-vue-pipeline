@@ -44,10 +44,7 @@ button.active:after {
 }
 
 button {
-  background-color: transparent;
-  border: none;
   color: white;
-  padding: 10px;
   padding-bottom: 2px;
 }
 

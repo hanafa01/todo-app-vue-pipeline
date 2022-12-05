@@ -79,10 +79,8 @@ button {
   border-top-right-radius: 6px;
   border-bottom-right-radius: 6px;
   width: 80px;
-  padding: 10px;
   background-color: #fff;
   border: 2px solid hsla(0, 0%, 100%, 0.35);
-  padding: 10px;
   color: #000;
   transition: all 0.3s ease-in-out;
 }
@@ -90,7 +88,6 @@ button {
 button:hover {
   background-color: #000;
   border: 2px solid #fff;
-  padding: 10px;
   color: white;
 }
 </style>

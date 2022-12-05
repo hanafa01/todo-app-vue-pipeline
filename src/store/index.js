@@ -1,93 +1,108 @@
-import { createStore } from 'vuex';
+import { createStore } from 'vuex'
+import TodosModule from './modules/todos/index'
+
+import axios from 'axios';
+
+axios.defaults.baseURL = process.env.VUE_APP_BASE_URL;
 
 const store = createStore({
+    modules: {
+        todos: TodosModule
+    },
     state() {
         return {
-            filter: "all",
-            todos: [
-                { id: 2, title: 'Todo 2', completed: true },
-                { id: 1, title: 'Todo 1', completed: false },
-            ],
+            token: localStorage.getItem('access_token') || null,
         };
     },
     mutations: {
-        addTodo(state, data) {
-            state.todos.unshift(data)
+        retrieveToken(state, token) {
+            state.token = token
         },
-        removeTodo(state, id) {
-            const selectedTodoIndex = state.todos.findIndex(todo => todo.id === id)
-            state.todos.splice(selectedTodoIndex, 1);
+        destroyToken(state) {
+            state.token = null;
         },
-        updateTodo(state, todo) {
-            console.log(todo)
-            const index = state.todos.findIndex(item => item.id === todo.id)
-            state.todos.splice(index, 1, {
-                id: todo.id,
-                title: todo.title,
-                completed: todo.completed,
-            })
-        },
-        clearCompletedTodo(state) {
-            state.todos = state.todos.filter(todo => todo.completed === false)
-            state.filter = 'all';
-        },
-        updateFilter(state, type) {
-            state.filter = type;
-        },
-        checkAll(state, checked) {
-            state.todos.forEach(function (todo) {
-                todo.completed = checked;
-            });
-        },
+        clearTodos(state) {
+            state.todos = [];
+        }
     },
     actions: {
-        addTodo(context, data) {
-            context.commit('addTodo', data)
+        retrieveName(context) {
+            return new Promise((resolve, reject) => {
+                axios.defaults.headers.common['Authorization'] = 'Bearer ' + context.state.token
+
+                axios.get('/user')
+                    .then(response => {
+                        resolve(response)
+                    })
+                    .catch(error => {
+                        console.log(error.response)
+                        reject(error)
+                    })
+            });
         },
-        removeTodo(context, id) {
-            context.commit('removeTodo', id)
+        retrieveToken(context, credentials) {
+            return new Promise((resolve, reject) => {
+                axios.post('/login', {
+                    username: credentials.username,
+                    password: credentials.password,
+                })
+                    .then(response => {
+                        console.log(response)
+                        const token = response.data.access_token;
+                        localStorage.setItem('access_token', token)
+                        context.commit('retrieveToken', token)
+                        resolve(response)
+                    })
+                    .catch(error => {
+                        console.log(error.response)
+                        reject(error)
+                    })
+            });
         },
-        updateTodo(context, data) {
-            context.commit('updateTodo', data)
+        register(context, data) {
+            return new Promise((resolve, reject) => {
+                axios.post('/register', {
+                    name: data.name,
+                    email: data.email,
+                    password: data.password,
+                })
+                    .then(response => {
+                        resolve(response)
+                    })
+                    .catch(error => {
+                        console.log(error.response)
+                        reject(error)
+                    })
+            });
         },
-        clearCompletedTodo(context) {
-            context.commit('clearCompletedTodo')
+        destroyToken(context) {
+            return new Promise((resolve, reject) => {
+                axios.defaults.headers.common['Authorization'] = 'Bearer ' + context.state.token
+                if (context.getters.loggedIn) {
+                    axios.post('/logout')
+                        .then(response => {
+                            localStorage.removeItem('access_token')
+                            context.commit('destroyToken')
+                            resolve(response)
+                        })
+                        .catch(error => {
+                            localStorage.removeItem('access_token')
+                            context.commit('destroyToken')
+                            console.log(error)
+                            reject(error)
+                        })
+                }
+            });
         },
-        updateFilter(context, type) {
-            context.commit('updateFilter', type)
-        },
-        checkAll(context, checked) {
-            context.commit('checkAll', checked)
-        },
+        clearTodos(context) {
+            context.commit('clearTodos');
+        }
     },
     getters: {
-        todos(state) {
-            return state.todos;
-        },
-        todosFiltered(state, getters) {
-            if (state.filter === 'completed') {
-                return getters.todos.filter(todo => todo.completed);
-            }
-
-            if (state.filter === 'pending') {
-                return getters.todos.filter(todo => !todo.completed);
-            }
-
-            return getters.todos;
-        },
-        filter(state) {
-            return state.filter;
-        },
-        nb_total(_, getters) {
-            return getters.todos.length
-        },
-        nb_pending(_, getters) {
-            return getters.todos.filter(todo => !todo.completed).length
-        },
-        nb_completed(_, getters) {
-            return getters.todos.filter(todo => todo.completed).length
+        loggedIn(state) {
+            return state.token !== null;
         },
     }
-});
+})
 
 export default store;
