@@ -29,3 +29,8 @@ steps:
     echo "Listing dist folder:"
     dir dist
   displayName: 'Install dependencies and build'
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: 'vue_dist_file'
+    publishLocation: 'Container'
