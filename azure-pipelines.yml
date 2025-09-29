@@ -17,7 +17,9 @@ steps:
   displayName: 'Install Node.js'
 
 - script: |
+    echo "Current directory: $(pwd)"
     npm install
     npm run build
+    echo "Build folder contents:"
     ls -la dist
-  displayName: 'npm install and build'
+  displayName: 'Install dependencies and build'
