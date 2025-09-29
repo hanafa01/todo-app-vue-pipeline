@@ -17,9 +17,15 @@ steps:
   displayName: 'Install Node.js'
 
 - script: |
-    echo "Current directory: $(pwd)"
+    node -v
+    npm -v
+  displayName: 'Check Node and npm versions'
+
+
+- script: |
+    echo "Current directory: %cd%"
     npm install
-    npm run build
-    echo "Build folder contents:"
-    ls -la dist
+    npm run build --verbose
+    echo "Listing dist folder:"
+    dir dist
   displayName: 'Install dependencies and build'
