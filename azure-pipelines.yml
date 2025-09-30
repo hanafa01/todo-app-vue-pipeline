@@ -2,13 +2,11 @@
 # Build a Node.js project that uses Vue.
 # Add steps that analyze code, save build artifacts, deploy, and more:
 # https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
-
 trigger:
 - main
 
 pool:
   name: SelfHostedH
-  #vmImage: ubuntu-latest #only for Microsoft-hosted agents
 
 steps:
 - task: NodeTool@0
@@ -21,17 +19,21 @@ steps:
     npm -v
   displayName: 'Check Node and npm versions'
 
-
 - script: |
     echo "Current directory: %cd%"
     npm install
     npm run build
   displayName: 'Install dependencies and build'
-  
+
+- script: ls -la dist
+  displayName: 'Check dist folder contents'
+
 - task: CopyFiles@2
   inputs:
-      Contents: 'dist/**'
-      TargetFolder: '$(build.artifactstagingdirectory)'
+    SourceFolder: '$(Build.SourcesDirectory)'
+    Contents: 'dist/**'
+    TargetFolder: '$(Build.ArtifactStagingDirectory)'
+
 - task: PublishBuildArtifacts@1
   inputs:
     PathtoPublish: '$(Build.ArtifactStagingDirectory)'
