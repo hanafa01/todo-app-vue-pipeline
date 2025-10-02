@@ -24,18 +24,11 @@ steps:
     npm run build
   displayName: 'Install dependencies and build'
 
-- task: ArchiveFiles@2
+- task: CopyFiles@2
   inputs:
-    rootFolderOrFile: 'dist'
-    includeRootFolder: true
-    archiveType: 'zip'
-    archiveFile: '$(Build.ArtifactStagingDirectory)/dist.zip'
-    replaceExistingArchive: true
-  
-# - task: CopyFiles@2
-#  inputs:
-#      Contents: 'dist.zip'
-#      TargetFolder: '$(build.artifactstagingdirectory)'
+    Contents: 'dist/**'
+    TargetFolder: '$(build.artifactstagingdirectory)'
+
 - task: PublishBuildArtifacts@1
   inputs:
     PathtoPublish: '$(Build.ArtifactStagingDirectory)'
