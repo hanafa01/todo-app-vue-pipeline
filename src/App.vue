@@ -7,7 +7,7 @@
     </div>
   </base-dialog>
 
-  <h1 class="app-title">Todo App (auto deploy to cloud with Azure Devops.)</h1>
+  <h1 class="app-title">Todo App (auto deploy to cloud with Azure Devops..)</h1>
   <div class="todo-info">
     <span class="total">Total: {{ nb_total }}</span>
     <span class="completed">Completed: {{ nb_completed }}</span>
